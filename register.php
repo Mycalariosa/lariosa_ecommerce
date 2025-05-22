@@ -49,79 +49,118 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         color: #ffffff;
         font-family: 'Segoe UI', sans-serif;
     }
-    .form-container {
+
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 30px 15px;
+    }
+
+    .login-container {
         background-color: #1e1e1e;
         padding: 2.5rem;
+        width: 100%;
+        max-width: 400px;
         border-radius: 12px;
         box-shadow: 0 0 10px #00000099;
     }
+
+    .login-title {
+        font-size: 1.8rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .form-label {
+        color: #ccc;
+        font-weight: 500;
+    }
+
     .form-control {
         background-color: #121212;
         color: #ffffff;
         border: 1px solid #333;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 6px;
     }
+
     .form-control:focus {
         background-color: #121212;
         color: #ffffff;
         border-color: #555;
         box-shadow: none;
     }
-    .btn-outline-light:hover {
-        background-color: #ffffff;
-        color: #000000;
+
+    .btn-outline-light {
+        width: 100%;
+        padding: 12px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: background-color 0.3s ease;
     }
+
+    .btn-outline-light:hover {
+        background-color: #333;
+    }
+
+    .error-message {
+        color: #ff6666;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
     .link-secondary {
         color: #bbbbbb;
+        text-decoration: none;
     }
+
     .link-secondary:hover {
         color: #ffffff;
     }
-    .form-title {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
+
+    .extra-links {
         text-align: center;
-        font-weight: 600;
+        margin-top: 1rem;
     }
 </style>
 
-<div class="container text-light">
-    <div class="row justify-content-center">
-        <div class="col-md-6 mt-5 mb-5">
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-title">Register</div>
 
-            <div class="form-container">
-
-                <div class="form-title">Register</div>
-
-                <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger">
-                        <?php foreach ($errors as $error): ?>
-                            <p class="mb-0"><?php echo $error; ?></p>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="full-name" class="form-label">Name</label>
-                        <input name="full-name" type="text" class="form-control" id="full-name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input name="email" type="email" class="form-control" id="exampleInputEmail1" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleInputPassword1" class="form-label">Password</label>
-                        <input name="password" type="password" class="form-control" id="exampleInputPassword1" required>
-                    </div>
-                    <button type="submit" name="submit" class="btn btn-outline-light w-100 mb-3">Register</button>
-                    <div class="text-center">
-                        <small>Already have an account? <a href="login.php" class="link-secondary">Log in</a></small>
-                    </div>
-                </form>
-
+        <?php if (!empty($errors)): ?>
+            <div class="error-message">
+                <?php foreach ($errors as $error): ?>
+                    <p class="mb-0"><?php echo $error; ?></p>
+                <?php endforeach; ?>
             </div>
+        <?php endif; ?>
 
-        </div>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="full-name" class="form-label">Name</label>
+                <input name="full-name" type="text" class="form-control" id="full-name" required>
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email address</label>
+                <input name="email" type="email" class="form-control" id="exampleInputEmail1" required>
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input name="password" type="password" class="form-control" id="exampleInputPassword1" required>
+            </div>
+            <button type="submit" name="submit" class="btn-outline-light">Register</button>
+            <div class="extra-links">
+                <small>Already have an account? <a href="login.php" class="link-secondary">Log in</a></small>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -6,8 +6,6 @@ use Aries\MiniFrameworkStore\Models\User;
 
 $user = new User();
 
-session_start();
-
 if (isset($_POST['submit'])) {
     $user_info = $user->login([
         'email' => $_POST['email'],

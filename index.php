@@ -267,7 +267,11 @@ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
                             <h6 class="card-subtitle"><?php echo $pesoFormatter->formatCurrency($product['price'], 'PHP') ?></h6>
                             <p class="card-text"><?php echo htmlspecialchars($product['description']) ?></p>
                             <a href="product.php?id=<?php echo $product['id'] ?>" class="btn btn-primary">View Product</a>
-                            <a href="#" class="btn btn-success add-to-cart" data-productid="<?php echo $product['id'] ?>" data-quantity="1">Add to Cart</a>
+                            <?php if(isset($_SESSION['user'])): ?>
+                                <a href="#" class="btn btn-success add-to-cart" data-productid="<?php echo $product['id'] ?>" data-quantity="1">Add to Cart</a>
+                            <?php else: ?>
+                                <a href="login.php" class="btn btn-success">Login to Add to Cart</a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
