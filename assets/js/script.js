@@ -13,7 +13,7 @@
             formData.append('productId', productId);
             formData.append('quantity', quantity);
 
-            fetch('/cart-process.php', {
+            fetch('cart-process.php', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -23,15 +23,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    alert('Product added to cart successfully!');
-                    // Optionally update cart UI here
-                } else {
-                    alert('Failed to add product to cart.');
+                    // Redirect to cart page without alert
+                    window.location.href = 'cart.php';
+                } else if (data.status === 'auth_required') {
+                    // Redirect to login page without alert
+                    window.location.href = 'login.php';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
             });
         });
     });

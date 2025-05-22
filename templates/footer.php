@@ -1,6 +1,6 @@
     <footer class="bg-light text-center text-lg-start">
         <div class="text-center p-3">
-            Copyright © 2025 Online Store. All rights reserved.
+            Copyright © 2025 MBCLOTHING. All rights reserved.
         </div>
     </footer>
     <script src="assets/js/bootstrap.bundle.min.js"></script>

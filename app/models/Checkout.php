@@ -75,4 +75,17 @@ class Checkout extends Database
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public function getUserOrders($userId)
+    {
+        $sql = "SELECT o.id, o.created_at AS order_date, p.name AS product_name, od.quantity, od.price AS total_price
+                FROM orders o
+                JOIN order_details od ON o.id = od.order_id
+                JOIN products p ON od.product_id = p.id
+                WHERE o.customer_id = :user_id
+                ORDER BY o.created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }

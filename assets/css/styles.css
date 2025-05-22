@@ -1,3 +1,44 @@
 .store-body {
   background-color: #e2e2e2
 }
+
+/* Header */
+.header-bar {
+    background-color: #2e2e2e;
+    color: #fff;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.store-logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+.store-logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+}
+
+.store-logo span {
+    color: #b08e6b;
+}
+
+.header-links a {
+    color: #ddd;
+    margin-left: 20px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 14px;
+}
+
+.header-links a:hover {
+    color: #fff;
+}

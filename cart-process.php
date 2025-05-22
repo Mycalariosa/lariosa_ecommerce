@@ -6,6 +6,12 @@
 
     session_start();
 
+    // Check if user is logged in
+    if (!isset($_SESSION['user'])) {
+        echo json_encode(['status' => 'auth_required']);
+        exit;
+    }
+
     $product_id = intval($_POST['productId']);
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
 
@@ -26,6 +32,6 @@
         'total' => $productDetails['price'] * $quantity
     ];
 
-    echo json_encode(['status' => 'success', 'message' => 'Product added to cart']);
+    echo json_encode(['status' => 'success']);
 
 ?>

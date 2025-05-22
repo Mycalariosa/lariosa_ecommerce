@@ -18,35 +18,143 @@ session_start();
     <title>Online Store</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f7f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-bar {
+            background-color: #2e2e2e;
+            color: #fff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .store-logo {
+            display: flex;
+            align-items: center;
+            font-family: 'Georgia', serif;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+        }
+
+        .store-logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+        }
+
+        .store-logo span {
+            color: #b08e6b;
+        }
+
+        .header-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-links a:hover {
+            color: #fff;
+        }
+
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #2e2e2e;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 6px;
+        }
+        
+        .user-dropdown-content a {
+            color: #ddd;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .user-dropdown-content a:hover {
+            background-color: #3e3e3e;
+            color: #fff;
+        }
+        
+        .user-dropdown:hover .user-dropdown-content {
+            display: block;
+        }
+        
+        .user-dropdown:hover .user-name {
+            background-color: #3e3e3e;
+        }
+        
+        .user-name {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: #ddd;
+        }
+
+        .btn-outline-light {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #ddd;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            background-color: #ddd;
+            color: #2e2e2e;
+        }
+
+        .badge {
+            background-color: #b08e6b !important;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
 </head>
-<body class="store-body">
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">Online Store</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="add-product.php">Add Product</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Categories
-                    </a>
-                <ul class="dropdown-menu">
-                    <?php foreach($categories->getAll() as $category): ?>
-                        <li><a class="dropdown-item" href="category.php?name=<?php echo $category['name'];  ?>"><?php echo $category['name']; ?></a></li>
-                    <?php endforeach; ?>
-                </ul>
-                </li>
-            </ul>
-            <a class="icon-link" href="cart.php">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" version="1.1" id="Capa_1" width="20px" height="20px" viewBox="0 0 902.86 902.86" xml:space="preserve">
+<body>
+    <!-- HEADER -->
+    <div class="header-bar">
+        <div class="store-logo">
+            <img src="assets/images/logo_1.png" alt="M&B Logo">
+            M&B <span>CLOTHING STORE</span>
+        </div>
+        <div class="header-links">
+            <a href="index.php">Home</a>
+            <a href="add-product.php">Add Product</a>
+            <a href="cart.php">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff" version="1.1" id="Capa_1" width="20px" height="20px" viewBox="0 0 902.86 902.86" xml:space="preserve">
                     <g>
                         <g>
                             <path d="M671.504,577.829l110.485-432.609H902.86v-68H729.174L703.128,179.2L0,178.697l74.753,399.129h596.751V577.829z     M685.766,247.188l-67.077,262.64H131.199L81.928,246.756L685.766,247.188z"/>
@@ -54,24 +162,24 @@ session_start();
                         </g>
                     </g>
                 </svg>
-                <span class="badge bg-success"><?php echo countCart(); ?></span>
+                <span class="badge"><?php echo countCart(); ?></span>
             </a>
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Hello, <?php echo isset($_SESSION['user']) ? $_SESSION['user']['name'] : 'Guest'; ?>
-                    </a>
-                    <ul class="dropdown-menu">
-                    <?php if (isLoggedIn()): ?>
-                        <li><a class="dropdown-item" href="my-account.php">My Account</a></li>
-                        <li><a class="dropdown-item" href="logout.php">Logout</a></li>
-                    <?php else: ?>
-                        <li><a class="dropdown-item" href="login.php">Login</a></li>
-                        <li><a class="dropdown-item" href="register.php">Register</a></li>
-                    <?php endif; ?>
-                    </ul>
-                </li>
-            </ul>
+            <?php if(isset($_SESSION['user'])): ?>
+                <div class="user-dropdown">
+                    <div class="user-name">
+                        Hello, <?php echo $_SESSION['user']['name']; ?>
+                    </div>
+                    <div class="user-dropdown-content">
+                        <a href="my-account.php">My Account</a>
+                        <a href="logout.php">Logout</a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <a href="login.php" class="btn btn-outline-light">Login</a>
+            <?php endif; ?>
         </div>
     </div>
-    </nav>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

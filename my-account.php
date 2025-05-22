@@ -3,6 +3,7 @@
 <?php
 
 use Aries\MiniFrameworkStore\Models\User;
+use Aries\MiniFrameworkStore\Models\Checkout;
 
 if(!isset($_SESSION['user'])) {
     header('Location: login.php');
@@ -36,6 +37,13 @@ if(isset($_POST['submit'])) {
 
     echo "<script>alert('Account details updated successfully!');</script>";
 }
+
+// Get user's order history
+$checkout = new Checkout();
+$userOrders = $checkout->getUserOrders($_SESSION['user']['id']);
+
+$amountLocale = 'en_PH';
+$pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
 
 ?>
 
@@ -71,6 +79,44 @@ if(isset($_POST['submit'])) {
                 </div>
                 <button type="submit" class="btn btn-primary" name="submit">Save Changes</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Order History Section -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="bg-white p-5">
+                <h2>Order History</h2>
+                <?php if (!empty($userOrders)): ?>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Products</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($userOrders as $order): ?>
+                                <tr>
+                                    <td>#<?php echo $order['id']; ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
+                                    <td><?php echo htmlspecialchars($order['product_name']); ?></td>
+                                    <td><?php echo $pesoFormatter->formatCurrency($order['total_price'], 'PHP'); ?></td>
+                                    <td>Completed</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="text-center py-4">
+                        <p>You haven't placed any orders yet.</p>
+                        <a href="index.php" class="btn btn-primary">Start Shopping</a>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
