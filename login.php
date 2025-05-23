@@ -1,5 +1,5 @@
 <?php
-session_start(); // Always start the session before any output
+session_start();
 include 'helpers/functions.php';
 require_once 'helpers/role_helper.php';
 
@@ -17,7 +17,8 @@ if (!isset($_SESSION['user']) && isset($_COOKIE['rememberme'])) {
             'id' => $user_info['id'],
             'name' => $user_info['name'],
             'email' => $user_info['email'],
-            'role' => $user_info['role']
+            'role' => $user_info['role'],
+            'profile_picture' => $user_info['profile_picture'] ?? 'assets/images/default-profile.png'
         ];
         setcookie('rememberme', $token, time() + (86400 * 30), "/", "", false, true);
         header('Location: dashboard.php');
@@ -27,11 +28,11 @@ if (!isset($_SESSION['user']) && isset($_COOKIE['rememberme'])) {
 
 // Redirect if already logged in
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
-    header('Location: dashboard.php');
+    header('Location: index.php');
     exit;
 }
 
-// Handle login form submission
+// Handle login form
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -49,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 'id' => $user_info['id'],
                 'name' => $user_info['name'],
                 'email' => $user_info['email'],
-                'role' => $user_info['role']
+                'role' => $user_info['role'],
+                'profile_picture' => $user_info['profile_picture'] ?? 'assets/images/default-profile.png'
             ];
 
             if (isset($_POST['remember_me'])) {
@@ -63,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 $user->saveRememberToken($user_info['id'], null);
             }
 
-            header('Location: dashboard.php');
+            header('Location: index.php');
             exit;
         } else {
             $message = 'Invalid email or password.';
@@ -71,167 +73,171 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     }
 }
 
-// Check if user is admin
-if (isAdmin()) {
-    // Show admin features
-}
-
-// Require admin access
-requireAdmin();
-
-// Check if user is customer
-if (isCustomer()) {
-    // Show customer features
-}
-
-// Get user role
-$role = getUserRole();
-
 template('header.php');
 ?>
 
 <style>
-    body {
-        background-color: #121212;
-        color: #ffffff;
-        font-family: 'Segoe UI', sans-serif;
-    }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .login-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 80vh;
-        padding: 30px 15px;
-    }
+  .main-content {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 15px;
+  }
 
-    .login-container {
-        background-color: #1e1e1e;
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 400px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px #00000099;
-    }
+  .login-container {
+    background-color: #1c1c1c;
+    padding: 2rem 2.5rem;
+    width: 350px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  }
 
-    .login-title {
-        font-size: 1.8rem;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        font-weight: 600;
-    }
+  .login-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
 
-    .form-label {
-        color: #ccc;
-        font-weight: 500;
-    }
+  label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #bbb;
+    font-weight: 500;
+  }
 
-    .form-control {
-        background-color: #121212;
-        color: #ffffff;
-        border: 1px solid #333;
-        padding: 12px;
-        margin-bottom: 20px;
-        border-radius: 6px;
-        width: 100%;
-    }
+  input[type="email"],
+  input[type="password"] {
+    background-color: #121212;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 1rem;
+  }
 
-    .form-control:focus {
-        background-color: #121212;
-        color: #ffffff;
-        border-color: #555;
-        box-shadow: none;
-        outline: none;
-    }
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    outline: none;
+    border-color: #555;
+    background-color: #121212;
+  }
 
-    .form-check-label {
-        color: #bbb;
-    }
+  .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
 
-    .form-check-input {
-        background-color: #121212;
-        border: 1px solid #444;
-    }
+  .form-check input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #007bff;
+  }
 
-    .btn-login {
-        width: 100%;
-        padding: 12px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
+  .form-check label {
+    color: #bbb;
+    margin: 0;
+  }
 
-    .btn-login:hover {
-        background-color: #0056b3;
-        transform: translateY(-1px);
-    }
+  .btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
 
-    .btn-login:active {
-        transform: translateY(0);
-    }
+  .btn-login:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+  }
 
-    .error-message {
-        color: #ff6666;
-        text-align: center;
-        margin-bottom: 1rem;
-        padding: 10px;
-        background-color: rgba(255, 102, 102, 0.1);
-        border-radius: 6px;
-    }
+  .btn-login:active {
+    transform: translateY(0);
+  }
 
-    .link-secondary {
-        color: #bbbbbb;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
+  .error-message {
+    color: #ff6666;
+    background-color: rgba(255, 102, 102, 0.15);
+    padding: 10px;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+  }
 
-    .link-secondary:hover {
-        color: #ffffff;
-    }
+  .extra-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
 
-    .extra-links {
-        text-align: center;
-        margin-top: 1.5rem;
-    }
+  .extra-links a {
+    color: #bbb;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .extra-links a:hover {
+    color: #fff;
+  }
+
+  footer {
+    flex-shrink: 0;
+    background-color: #1c1c1c;
+    color: #aaa;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 0.9rem;
+  }
 </style>
 
-<div class="login-wrapper">
-    <div class="login-container">
-        <div class="login-title">Login</div>
+<div class="main-content">
+  <div class="login-container">
+    <div class="login-title">Login</div>
 
-        <?php if (!empty($message)): ?>
-            <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
-        <?php endif; ?>
+    <?php if (!empty($message)) : ?>
+      <div class="error-message"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
-        <form method="POST" action="login.php" autocomplete="off">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
-                <input name="email" type="email" class="form-control" id="email" required 
-                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-            </div>
+    <form method="POST" action="login.php" autocomplete="off">
+      <label for="email">Email address</label>
+      <input name="email" type="email" id="email" required
+        value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input name="password" type="password" class="form-control" id="password" required>
-            </div>
+      <label for="password">Password</label>
+      <input name="password" type="password" id="password" required>
 
-            <div class="form-check mb-3">
-                <input type="checkbox" name="remember_me" class="form-check-input" id="rememberMe">
-                <label class="form-check-label" for="rememberMe">Remember me</label>
-            </div>
+      <div class="form-check">
+        <input type="checkbox" name="remember_me" id="rememberMe" <?= isset($_POST['remember_me']) ? 'checked' : '' ?>>
+        <label for="rememberMe">Remember me</label>
+      </div>
 
-            <button type="submit" name="submit" class="btn-login">Login</button>
+      <button type="submit" name="submit" class="btn-login">Login</button>
+    </form>
 
-            <div class="extra-links">
-                <small>Don't have an account? <a href="register.php" class="link-secondary">Register</a></small>
-            </div>
-        </form>
+    <div class="extra-links">
+      <small>Don't have an account? <a href="register.php">Register</a></small>
     </div>
+  </div>
 </div>
 
 <?php template('footer.php'); ?>

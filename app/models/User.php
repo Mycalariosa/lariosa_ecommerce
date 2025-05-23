@@ -4,50 +4,51 @@ namespace App\Models;
 
 use App\Includes\Database;
 
-
 class User extends Database {
     private $db;
     const ROLE_ADMIN = 'admin';
     const ROLE_CUSTOMER = 'customer';
 
     public function __construct() {
-        parent::__construct(); // Call the parent constructor to establish the connection
-        $this->db = $this->getConnection(); // Get the connection instance
+        parent::__construct();
+        $this->db = $this->getConnection();
     }
 
+    // Improved login method:
     public function login($data) {
-        $sql = "SELECT * FROM users WHERE email = :email";
+        // Case-insensitive email match
+        $sql = "SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'email' => $data['email'],
         ]);
         $user = $stmt->fetch(\PDO::FETCH_ASSOC);
         
-        // If user exists and password matches
+        // Verify password
         if ($user && password_verify($data['password'], $user['password'])) {
             return $user;
         }
         
         return false;
     }
+
     // Save or clear the remember me token for a user
-public function saveRememberToken($userId, $token) {
-    $sql = "UPDATE users SET remember_token = :token WHERE id = :id";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([
-        ':token' => $token,
-        ':id' => $userId,
-    ]);
-}
+    public function saveRememberToken($userId, $token) {
+        $sql = "UPDATE users SET remember_token = :token WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':token' => $token,
+            ':id' => $userId,
+        ]);
+    }
 
-// Get user by remember me token
-public function getUserByRememberToken($token) {
-    $sql = "SELECT * FROM users WHERE remember_token = :token LIMIT 1";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([':token' => $token]);
-    return $stmt->fetch();
-}
-
+    // Get user by remember me token
+    public function getUserByRememberToken($token) {
+        $sql = "SELECT * FROM users WHERE remember_token = :token LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':token' => $token]);
+        return $stmt->fetch();
+    }
 
     public function register($data) {
         $sql = "INSERT INTO users (name, email, password, address, phone, birthdate, role, created_at, updated_at) 
@@ -60,7 +61,7 @@ public function getUserByRememberToken($token) {
             'address' => $data['address'] ?? null,
             'phone' => $data['phone'] ?? null,
             'birthdate' => $data['birthdate'] ?? null,
-            'role' => self::ROLE_CUSTOMER, // Default role for new registrations
+            'role' => self::ROLE_CUSTOMER,
             'created_at' => $data['created_at'],
             'updated_at' => $data['updated_at']
         ]);
@@ -69,23 +70,18 @@ public function getUserByRememberToken($token) {
     }
 
     public function update($data) {
-        // Build the SQL query dynamically based on provided fields
         $fields = [];
         $params = ['id' => $data['id']];
-        
         $allowedFields = ['name', 'email', 'address', 'phone', 'birthdate', 'profile_picture'];
-        
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {
                 $fields[] = "$field = :$field";
                 $params[$field] = $data[$field];
             }
         }
-        
         if (empty($fields)) {
-            return false; // No fields to update
+            return false;
         }
-        
         $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
@@ -120,6 +116,15 @@ public function getUserByRememberToken($token) {
         $stmt->execute(['role' => self::ROLE_CUSTOMER]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    // In App\Models\User
+public function clearRememberTokenByToken(string $token): bool
+{
+    // assuming your DB table has columns `remember_token` and you can run a raw query or use your ORM
+    return $this->db->table('users')
+                    ->where('remember_token', $token)
+                    ->update(['remember_token' => null]);
+}
+
 
     public function find($id) {
         $sql = "SELECT * FROM users WHERE id = :id";

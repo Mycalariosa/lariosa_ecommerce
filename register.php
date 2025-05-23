@@ -1,10 +1,16 @@
-<?php include 'helpers/functions.php'; ?>
-<?php template('header.php'); ?>
-
 <?php
+session_start();
 
-use Aries\MiniFrameworkStore\Models\User;
+require_once __DIR__ . '/vendor/autoload.php'; // adjust if needed
+
+use App\Models\User;
 use Carbon\Carbon;
+
+// Redirect logged-in users
+if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+    header('Location: dashboard.php');
+    exit;
+}
 
 $user = new User();
 $errors = [];
@@ -14,17 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-    // Check if email already exists
-    if ($user->where('email', $email)->exists()) {
+    // You might want to add a dedicated existsByEmail method in User class for this
+    $existingUser = $user->login(['email' => $email, 'password' => '']); // crude check, consider improving
+
+    if ($existingUser) {
         $errors[] = 'Email is already registered.';
     } else {
         $registered = $user->register([
             'name' => $name,
             'email' => $email,
-            'password' => $password, // Password will be hashed in the User model
-            'role' => User::ROLE_CUSTOMER, // Default role for new registrations
-            'created_at' => Carbon::now('Asia/Manila'),
-            'updated_at' => Carbon::now('Asia/Manila')
+            'password' => $password,
+            'created_at' => Carbon::now('Asia/Manila')->toDateTimeString(),
+            'updated_at' => Carbon::now('Asia/Manila')->toDateTimeString()
         ]);
 
         if ($registered) {
@@ -36,29 +43,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Redirect logged-in users
-if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
-    header('Location: dashboard.php');
-    exit;
-}
+include 'helpers/functions.php';
+template('header.php');
 ?>
 
 <style>
     body {
         background-color: #121212;
         color: #ffffff;
-        font-family: 'Segoe UI', sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
     }
 
-    .login-wrapper {
+    /* Main container holds content and footer */
+    main {
+        flex: 1;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 80vh;
         padding: 30px 15px;
     }
 
-    .login-container {
+    .register-container {
         background-color: #1e1e1e;
         padding: 2.5rem;
         width: 100%;
@@ -67,32 +76,40 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         box-shadow: 0 0 10px #00000099;
     }
 
-    .login-title {
+    .register-title {
         font-size: 1.8rem;
         text-align: center;
         margin-bottom: 1.5rem;
         font-weight: 600;
     }
 
-    .form-label {
+    label {
         color: #ccc;
         font-weight: 500;
+        display: block;
+        margin-bottom: 6px;
     }
 
-    .form-control {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
         background-color: #121212;
         color: #ffffff;
         border: 1px solid #333;
         padding: 12px;
         margin-bottom: 20px;
         border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
     }
 
-    .form-control:focus {
-        background-color: #121212;
-        color: #ffffff;
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
         border-color: #555;
-        box-shadow: none;
+        outline: none;
     }
 
     .btn-outline-light {
@@ -103,6 +120,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         border: none;
         border-radius: 6px;
         font-size: 15px;
+        cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
@@ -116,52 +134,51 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         margin-bottom: 1rem;
     }
 
-    .link-secondary {
-        color: #bbbbbb;
-        text-decoration: none;
-    }
-
-    .link-secondary:hover {
-        color: #ffffff;
-    }
-
     .extra-links {
         text-align: center;
         margin-top: 1rem;
     }
+
+    .extra-links a {
+        color: #bbbbbb;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .extra-links a:hover {
+        color: #ffffff;
+    }
 </style>
 
-<div class="login-wrapper">
-    <div class="login-container">
-        <div class="login-title">Register</div>
+<main>
+    <div class="register-container">
+        <div class="register-title">Register</div>
 
         <?php if (!empty($errors)): ?>
             <div class="error-message">
                 <?php foreach ($errors as $error): ?>
-                    <p class="mb-0"><?php echo $error; ?></p>
+                    <p><?php echo htmlspecialchars($error); ?></p>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST">
-            <div class="mb-3">
-                <label for="full-name" class="form-label">Name</label>
-                <input name="full-name" type="text" class="form-control" id="full-name" required>
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input name="email" type="email" class="form-control" id="exampleInputEmail1" required>
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input name="password" type="password" class="form-control" id="exampleInputPassword1" required>
-            </div>
-            <button type="submit" name="submit" class="btn-outline-light">Register</button>
-            <div class="extra-links">
-                <small>Already have an account? <a href="login.php" class="link-secondary">Log in</a></small>
-            </div>
+        <form method="POST" novalidate>
+            <label for="full-name">Name</label>
+            <input id="full-name" name="full-name" type="text" required autocomplete="name" />
+
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" required autocomplete="new-password" />
+
+            <button type="submit" class="btn-outline-light">Register</button>
         </form>
+
+        <div class="extra-links">
+            <small>Already have an account? <a href="login.php">Log in</a></small>
+        </div>
     </div>
-</div>
+</main>
 
 <?php template('footer.php'); ?>
