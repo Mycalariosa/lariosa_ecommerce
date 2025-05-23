@@ -155,7 +155,7 @@ template('header.php');
   .btn-login {
     width: 100%;
     padding: 12px;
-    background-color: #007bff;
+    background-color: #2e2e2e; /* Black */
     color: #fff;
     font-weight: 600;
     border: none;
@@ -166,7 +166,7 @@ template('header.php');
   }
 
   .btn-login:hover {
-    background-color: #0056b3;
+    background-color: #1a1a1a; /* Darker black */
     transform: translateY(-1px);
   }
 

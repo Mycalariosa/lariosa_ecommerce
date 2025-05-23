@@ -207,14 +207,14 @@ $categories = new Category();
     <!-- HEADER -->
     <div class="header-bar">
         <div class="store-logo">
-            <img src="assets/images/logo_1.png" alt="M&B Logo">
+            <img src="assets/images/logo_1.png" alt="M&B Logo"> <!-- Add logo -->
             M&B <span>CLOTHING STORE</span>
         </div>
         <div class="header-links">
             <a href="index.php">Home</a>
             <?php if(isset($_SESSION['user'])): ?>
                 <?php if(isAdmin()): ?>
-                    <a href="add-product.php">Add Product</a>
+                    <a href="product-management.php">Product Management</a> <!-- Updated link -->
                 <?php endif; ?>
                 <a href="cart.php" class="cart-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff" version="1.1" id="Capa_1" width="20px" height="20px" viewBox="0 0 902.86 902.86" xml:space="preserve">

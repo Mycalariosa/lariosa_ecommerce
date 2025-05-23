@@ -105,19 +105,19 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
     }
 
     .btn-success {
-        background-color: #b08e6b;
+        background-color: #b08e6b; /* Brown */
     }
 
     .btn-success:hover {
-        background-color: #a07a50;
+        background-color: #a07a50; /* Darker brown */
     }
 
     .btn-primary {
-        background-color: #2e2e2e;
+        background-color: #2e2e2e; /* Black */
     }
 
     .btn-primary:hover {
-        background-color: #1a1a1a;
+        background-color: #1a1a1a; /* Darker black */
     }
 
     .empty-cart {
