@@ -12,7 +12,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 requireAdmin();
 
 use App\Models\Category;
-use App\Models\roduct;
+use App\Models\Product; // Fix the namespace for the Product class
 use Carbon\Carbon;
 
 // Ensure $db is initialized

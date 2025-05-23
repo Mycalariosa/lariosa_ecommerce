@@ -77,6 +77,11 @@ template('header.php');
         margin-bottom: 20px;
     }
 
+    .btn-container {
+        text-align: center; /* Center align the button */
+        margin-bottom: 40px; /* Increased spacing below the button */
+    }
+
     .table {
         width: 100%;
         border-collapse: collapse;
@@ -112,11 +117,11 @@ template('header.php');
     }
 
     .btn-success {
-        background-color: #b08e6b; /* Brown */
+        background-color: #2e2e2e; /* Black for Add New Product button */
     }
 
     .btn-success:hover {
-        background-color: #a07a50; /* Darker brown */
+        background-color: #1a1a1a; /* Darker black */
     }
 
     .btn-primary {
@@ -143,7 +148,9 @@ template('header.php');
 
     <div class="management-card">
         <h2>Manage Products</h2>
-        <a href="add-product.php" class="btn btn-success">Add New Product</a>
+        <div class="btn-container">
+            <a href="add-product.php" class="btn btn-success">Add New Product</a>
+        </div>
         <table class="table">
             <thead>
                 <tr>

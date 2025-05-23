@@ -27,6 +27,16 @@ $userOrders = $checkout->getUserOrders($_SESSION['user']['id']);
 // Get user's information
 $userInfo = $_SESSION['user'];
 
+// Handle "Mark as Completed" form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_completed'])) {
+    $orderId = filter_input(INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT);
+    if ($orderId) {
+        $checkout->updateOrderStatus($orderId, 'Completed');
+        header('Location: dashboard.php');
+        exit();
+    }
+}
+
 template('header.php'); ?>
 
 <style>
@@ -146,6 +156,11 @@ template('header.php'); ?>
         color: #2e7d32;
     }
 
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
     .quick-links {
         display: flex;
         gap: 20px;
@@ -186,6 +201,26 @@ template('header.php'); ?>
     .btn-outline-primary:hover {
         background-color: #b08e6b;
         color: #fff;
+    }
+
+    .btn-primary {
+        background-color: #2e2e2e; /* Black */
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #1a1a1a; /* Darker black */
+    }
+
+    .btn-primary:disabled {
+        background-color: #555; /* Gray for disabled state */
+        cursor: not-allowed;
     }
 </style>
 
@@ -231,16 +266,36 @@ template('header.php'); ?>
                             <th>Products</th>
                             <th>Total</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach (array_slice($userOrders, 0, 5) as $order): ?>
+                        <?php foreach ($userOrders as $order): ?>
                             <tr>
                                 <td>#<?php echo $order['id']; ?></td>
                                 <td><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
                                 <td><?php echo htmlspecialchars($order['product_name']); ?></td>
                                 <td>₱<?php echo number_format($order['total_price'], 2); ?></td>
-                                <td><span class="badge badge-success">Completed</span></td>
+                                <td>
+                                    <?php 
+                                    // Display the status badge
+                                    echo isset($order['status']) && $order['status'] === 'Completed' 
+                                        ? '<span class="badge badge-success">Completed</span>' 
+                                        : '<span class="badge badge-warning">Pending</span>'; 
+                                    ?>
+                                </td>
+                                <td>
+                                    <form method="POST" action="dashboard.php">
+                                        <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
+                                        <?php if (isset($order['status']) && $order['status'] === 'Pending'): ?>
+                                            <!-- Enable button if status is Pending -->
+                                            <button type="submit" name="mark_completed" class="btn btn-primary btn-sm">Received Order</button>
+                                        <?php else: ?>
+                                            <!-- Disable button if status is Completed -->
+                                            <button class="btn btn-primary btn-sm" disabled>Order Received</button>
+                                        <?php endif; ?>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

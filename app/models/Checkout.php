@@ -18,7 +18,8 @@ class Checkout extends Database
 
     public function guestCheckout($data)
     {
-        $sql = "INSERT INTO orders (customer_id, guest_name, guest_phone, guest_address, total, created_at, updated_at) VALUES (:customer_id, :guest_name, :guest_phone, :guest_address, :total, :created_at, :updated_at)";
+        $sql = "INSERT INTO orders (customer_id, guest_name, guest_phone, guest_address, total, status, created_at, updated_at) 
+                VALUES (:customer_id, :guest_name, :guest_phone, :guest_address, :total, :status, :created_at, :updated_at)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'customer_id' => null,
@@ -26,6 +27,7 @@ class Checkout extends Database
             'guest_phone' => $data['phone'],
             'guest_address' => $data['address'],
             'total' => $data['total'],
+            'status' => 'Pending', // Automatically set status to Pending
             'created_at' => Carbon::now('Asia/Manila'),
             'updated_at' => Carbon::now('Asia/Manila')
         ]);
@@ -35,7 +37,8 @@ class Checkout extends Database
 
     public function userCheckout($data)
     {
-        $sql = "INSERT INTO orders (customer_id, guest_name, guest_phone, guest_address, total, created_at, updated_at) VALUES (:customer_id, :guest_name, :guest_phone, :guest_address, :total, :created_at, :updated_at)";
+        $sql = "INSERT INTO orders (customer_id, guest_name, guest_phone, guest_address, total, status, created_at, updated_at) 
+                VALUES (:customer_id, :guest_name, :guest_phone, :guest_address, :total, :status, :created_at, :updated_at)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'customer_id' => $data['user_id'],
@@ -43,6 +46,7 @@ class Checkout extends Database
             'guest_phone' => null,
             'guest_address' => null,
             'total' => $data['total'],
+            'status' => 'Pending', // Automatically set status to Pending
             'created_at' => Carbon::now('Asia/Manila'),
             'updated_at' => Carbon::now('Asia/Manila')
         ]);
@@ -77,7 +81,7 @@ class Checkout extends Database
 
     public function getUserOrders($userId)
     {
-        $sql = "SELECT o.id, o.created_at AS order_date, p.name AS product_name, od.quantity, od.price AS total_price
+        $sql = "SELECT o.id, o.status, o.created_at AS order_date, p.name AS product_name, od.quantity, od.price AS total_price
                 FROM orders o
                 JOIN order_details od ON o.id = od.order_id
                 JOIN products p ON od.product_id = p.id
@@ -86,6 +90,17 @@ class Checkout extends Database
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function updateOrderStatus($orderId, $status)
+    {
+        $sql = "UPDATE orders SET status = :status WHERE id = :order_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':status' => $status,
+            ':order_id' => $orderId
+        ]);
+        return $stmt->rowCount();
     }
 
 }
