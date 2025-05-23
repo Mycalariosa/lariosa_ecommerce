@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 23, 2025 at 03:12 PM
+-- Generation Time: May 23, 2025 at 04:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -77,17 +77,19 @@ CREATE TABLE `orders` (
   `guest_address` varchar(255) DEFAULT NULL,
   `total` decimal(10,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` enum('Pending','Completed') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `customer_id`, `guest_name`, `guest_phone`, `guest_address`, `total`, `created_at`, `updated_at`) VALUES
-(1, 4, NULL, NULL, NULL, 1200.00, '2025-05-23 11:32:05', '2025-05-23 11:32:05'),
-(2, NULL, 'Guest', '0000000000', 'Unknown', 1200.00, '2025-05-23 12:44:02', '2025-05-23 12:44:02'),
-(3, NULL, 'Guest', '0000000000', 'Unknown', 1200.00, '2025-05-23 12:46:26', '2025-05-23 12:46:26');
+INSERT INTO `orders` (`id`, `customer_id`, `guest_name`, `guest_phone`, `guest_address`, `total`, `created_at`, `updated_at`, `status`) VALUES
+(1, 4, NULL, NULL, NULL, 1200.00, '2025-05-23 11:32:05', '2025-05-23 11:32:05', 'Pending'),
+(2, NULL, 'Guest', '0000000000', 'Unknown', 1200.00, '2025-05-23 12:44:02', '2025-05-23 12:44:02', 'Pending'),
+(3, NULL, 'Guest', '0000000000', 'Unknown', 1200.00, '2025-05-23 12:46:26', '2025-05-23 12:46:26', 'Pending'),
+(4, 4, NULL, NULL, NULL, 600.00, '2025-05-23 13:51:08', '2025-05-23 13:54:01', 'Completed');
 
 -- --------------------------------------------------------
 
@@ -111,7 +113,8 @@ CREATE TABLE `order_details` (
 INSERT INTO `order_details` (`id`, `order_id`, `product_id`, `quantity`, `price`, `subtotal`) VALUES
 (1, 1, 1, 1, 1200.00, 1200.00),
 (2, 2, 1, 1, 1200.00, 1200.00),
-(3, 3, 1, 1, 1200.00, 1200.00);
+(3, 3, 1, 1, 1200.00, 1200.00),
+(4, 4, 7, 1, 600.00, 600.00);
 
 -- --------------------------------------------------------
 
@@ -138,7 +141,14 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `category_id`, `name`, `description`, `price`, `slug`, `image_path`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Enchanted Ball Gown', 'glittery pink gown is a dress, typically evening wear, that features a pink fabric with glitter or other sparkly embellishments', 1200.00, 'enchanted-ball-gown', 'uploads/evening gown.jpg', '2025-05-22 09:41:42', '2025-05-23 12:59:09'),
 (2, 4, 'Sports Strappy tops', '2-packs sleeveless that comes Dark beige/Black in color', 600.00, 'sports-strappy-tops', 'uploads/sleeves.jpg', '2025-05-22 09:58:49', '2025-05-22 03:58:49'),
-(7, 8, 'pink jewel set', '', 600.00, 'pink-jewel-set', 'uploads/pink jewel.JPG', '2025-05-23 10:54:04', '2025-05-23 04:54:04');
+(7, 8, 'pink jewel set (Fashion)', 'a variety of jewelry items, typically featuring pink gemstones, colors, or embellishments. These sets can include necklaces, earrings.', 600.00, 'pink-jewel-set', 'uploads/pink jewel.JPG', '2025-05-23 10:54:04', '2025-05-23 14:24:14'),
+(8, 10, 'Batman Custome', 'a long-sleeve gray jumpsuit adorned with the legendary Batman logo, complemented by attached black gauntlets, boot-tops, a lightweight black cape', 500.00, 'batman-custome', 'uploads/batman.png', '2025-05-23 13:56:12', '2025-05-23 07:56:12'),
+(9, 4, 'White Suit', ' a formal or professional ensemble typically consisting of a jacket and trousers, both crafted from white fabric', 800.00, 'white-suit', 'uploads/suit.png', '2025-05-23 13:56:54', '2025-05-23 07:56:54'),
+(10, 9, 'Cargo Pants', 'typically a versatile and practical piece of clothing characterized by their ample storage pockets and durable fabric. ', 800.00, 'cargo-pants', 'uploads/cargo.jpg', '2025-05-23 14:20:51', '2025-05-23 08:20:51'),
+(11, 8, 'Gold Earings', 'Gold earrings featuring diamond stones are a popular and elegant jewelry choice, available in various styles from classic studs to elaborate drops. ', 5000.00, 'gold-earings', 'uploads/earings.JPG', '2025-05-23 14:23:52', '2025-05-23 08:23:52'),
+(12, 1, 'Wedding Gown ', 'A beautiful wedding gown, often made with materials like satin, silk, tulle, lace, and organza, can be described as a luxurious and elegant choice for a bride. ', 2300.00, 'wedding-gown-', 'uploads/wedding gown.png', '2025-05-23 14:26:38', '2025-05-23 08:26:38'),
+(13, 10, 'Stitch (baby)', 'typically features a plush, blue jumpsuit with Stitch\'s signature features like his tummy and spot markings', 400.00, 'stitch-(baby)', 'uploads/stitch.jpg', '2025-05-23 14:28:48', '2025-05-23 08:28:48'),
+(14, 9, 'Summer Shorts', 'de from breathable and lightweight materials like cotton, linen, or blends. They often have an elastic or buttoned waistband and may include pockets.', 600.00, 'summer-shorts', 'uploads/shorts.jpg', '2025-05-23 14:31:27', '2025-05-23 08:31:27');
 
 -- --------------------------------------------------------
 
@@ -279,19 +289,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `product_categories`
