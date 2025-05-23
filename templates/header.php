@@ -1,12 +1,14 @@
 <?php
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 require 'vendor/autoload.php';
 
-use Aries\MiniFrameworkStore\Models\Category;
+use App\Models\Category;
 
 $categories = new Category();
-
-session_start();
 
 ?>
 
@@ -25,6 +27,7 @@ session_start();
             color: #333;
             margin: 0;
             padding: 0;
+            padding-top: 80px; /* Add padding to account for fixed header */
         }
 
         .header-bar {
@@ -34,6 +37,12 @@ session_start();
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .store-logo {
@@ -43,6 +52,7 @@ session_start();
             font-size: 24px;
             font-weight: bold;
             letter-spacing: 1.5px;
+            z-index: 1001;
         }
 
         .store-logo img {
@@ -59,6 +69,7 @@ session_start();
             display: flex;
             align-items: center;
             gap: 20px;
+            z-index: 1001;
         }
 
         .header-links a {
@@ -78,24 +89,29 @@ session_start();
         .user-dropdown {
             position: relative;
             display: inline-block;
+            z-index: 1002;
         }
         
         .user-dropdown-content {
             display: none;
             position: absolute;
             right: 0;
+            top: 100%;
             background-color: #2e2e2e;
-            min-width: 160px;
+            min-width: 200px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+            z-index: 1002;
             border-radius: 6px;
+            margin-top: 5px;
         }
         
         .user-dropdown-content a {
             color: #ddd;
             padding: 12px 16px;
             text-decoration: none;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: background-color 0.3s ease;
         }
         
@@ -118,6 +134,34 @@ session_start();
             cursor: pointer;
             transition: background-color 0.3s ease;
             color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-name i {
+            color: #b08e6b;
+        }
+
+        .user-dropdown-content a i {
+            color: #b08e6b;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-dropdown-content a.logout {
+            color: #ff6b6b;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+
+        .user-dropdown-content a.logout:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+        }
+
+        .user-dropdown-content a.logout i {
+            color: #ff6b6b;
         }
 
         .btn-outline-light {
@@ -141,6 +185,16 @@ session_start();
             border-radius: 12px;
             font-size: 12px;
         }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-icon .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
     </style>
 </head>
 <body>
@@ -154,7 +208,7 @@ session_start();
             <a href="index.php">Home</a>
             <?php if(isset($_SESSION['user'])): ?>
                 <a href="add-product.php">Add Product</a>
-                <a href="cart.php">
+                <a href="cart.php" class="cart-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff" version="1.1" id="Capa_1" width="20px" height="20px" viewBox="0 0 902.86 902.86" xml:space="preserve">
                         <g>
                             <g>
@@ -165,15 +219,24 @@ session_start();
                     </svg>
                     <span class="badge"><?php echo countCart(); ?></span>
                 </a>
-            <?php endif; ?>
-            <?php if(isset($_SESSION['user'])): ?>
                 <div class="user-dropdown">
                     <div class="user-name">
-                        Hello, <?php echo $_SESSION['user']['name']; ?>
+                        <i class="fas fa-user-circle"></i>
+                        <?php echo htmlspecialchars($_SESSION['user']['name']); ?>
                     </div>
                     <div class="user-dropdown-content">
-                        <a href="my-account.php">My Account</a>
-                        <a href="logout.php">Logout</a>
+                        <a href="dashboard.php">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                        <a href="my-account.php">
+                            <i class="fas fa-user-cog"></i>
+                            My Account
+                        </a>
+                        <a href="logout.php" class="logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
                     </div>
                 </div>
             <?php else: ?>

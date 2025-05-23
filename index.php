@@ -1,9 +1,13 @@
-<?php include 'helpers/functions.php'; ?>
-<?php template('header.php'); ?>
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-<?php
-use Aries\MiniFrameworkStore\Models\Product;
-use Aries\MiniFrameworkStore\Models\Category;
+include 'helpers/functions.php'; 
+
+use App\Models\Product;
+use App\Models\Category;
 
 $products = new Product();
 $categories = new Category();
@@ -12,6 +16,8 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
 
 // Get selected category if any
 $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
+
+template('header.php');
 ?>
 
 <style>
@@ -21,6 +27,7 @@ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
         color: #333;
         margin: 0;
         padding: 0;
+        padding-top: 80px; /* Add padding for fixed header */
     }
 
     /* Header */
@@ -70,6 +77,8 @@ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
         max-width: 1200px;
         margin: auto;
         padding: 20px;
+        position: relative;
+        z-index: 1;
     }
 
     .sidebar {
@@ -77,6 +86,9 @@ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
         background-color: #fff;
         padding: 20px;
         border-right: 1px solid #ddd;
+        position: sticky;
+        top: 100px;
+        height: fit-content;
     }
 
     .sidebar h4 {
@@ -117,6 +129,8 @@ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : null;
     .main-content {
         width: 80%;
         padding: 0 30px;
+        position: relative;
+        z-index: 1;
     }
 
     .breadcrumb {

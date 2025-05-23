@@ -1,61 +1,66 @@
-<?php 
-include 'helpers/functions.php'; 
-template('header.php'); 
+<?php
+session_start(); // Always start the session before any output
+include 'helpers/functions.php';
 
-use Aries\MiniFrameworkStore\Models\User;
+use App\Models\User;
 
 $user = new User();
+$message = null;
 
-if (isset($_POST['submit'])) {
-    $user_info = $user->login([
-        'email' => $_POST['email'],
-    ]);
-
-    if ($user_info && password_verify($_POST['password'], $user_info['password'])) {
-        $_SESSION['user'] = $user_info;
-
-        if (isset($_POST['remember_me'])) {
-            // Generate a random token
-            $token = bin2hex(random_bytes(16));
-            // Save the token in database for this user
-            $user->saveRememberToken($user_info['id'], $token);
-
-            // Set cookie for 30 days, HTTP only for security
-            setcookie('rememberme', $token, time() + (86400 * 30), "/", "", false, true);
-        } else {
-            // If unchecked, clear cookie if exists
-            if (isset($_COOKIE['rememberme'])) {
-                setcookie('rememberme', '', time() - 3600, "/");
-            }
-            // Also clear token in DB
-            $user->saveRememberToken($user_info['id'], null);
-        }
-
-        header('Location: index.php'); // redirect to homepage
-        exit;
-    } else {
-        $message = 'Invalid email or password.';
-    }
-}
-
-// Auto-login via cookie if session not set
+// Auto-login via rememberme token
 if (!isset($_SESSION['user']) && isset($_COOKIE['rememberme'])) {
     $token = $_COOKIE['rememberme'];
     $user_info = $user->getUserByRememberToken($token);
     if ($user_info) {
         $_SESSION['user'] = $user_info;
-        // Refresh cookie expiry
         setcookie('rememberme', $token, time() + (86400 * 30), "/", "", false, true);
-        header('Location: index.php');
+        header('Location: dashboard.php');
         exit;
     }
 }
 
-// Redirect already logged-in users
+// Redirect if already logged in
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
-    header('Location: index.php');
+    header('Location: dashboard.php');
     exit;
 }
+
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+
+    if (empty($email) || empty($password)) {
+        $message = 'Please enter both email and password.';
+    } else {
+        $user_info = $user->login([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        if ($user_info) {
+            $_SESSION['user'] = $user_info;
+
+            if (isset($_POST['remember_me'])) {
+                $token = bin2hex(random_bytes(16));
+                $user->saveRememberToken($user_info['id'], $token);
+                setcookie('rememberme', $token, time() + (86400 * 30), "/", "", false, true);
+            } else {
+                if (isset($_COOKIE['rememberme'])) {
+                    setcookie('rememberme', '', time() - 3600, "/");
+                }
+                $user->saveRememberToken($user_info['id'], null);
+            }
+
+            header('Location: dashboard.php');
+            exit;
+        } else {
+            $message = 'Invalid email or password.';
+        }
+    }
+}
+
+template('header.php');
 ?>
 
 <style>
@@ -101,6 +106,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         padding: 12px;
         margin-bottom: 20px;
         border-radius: 6px;
+        width: 100%;
     }
 
     .form-control:focus {
@@ -108,6 +114,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         color: #ffffff;
         border-color: #555;
         box-shadow: none;
+        outline: none;
     }
 
     .form-check-label {
@@ -119,30 +126,41 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         border: 1px solid #444;
     }
 
-    .btn-outline-light {
+    .btn-login {
         width: 100%;
         padding: 12px;
-        background-color: #000;
+        background-color: #007bff;
         color: #fff;
         border: none;
         border-radius: 6px;
-        font-size: 15px;
-        transition: background-color 0.3s ease;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
     }
 
-    .btn-outline-light:hover {
-        background-color: #333;
+    .btn-login:hover {
+        background-color: #0056b3;
+        transform: translateY(-1px);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
     }
 
     .error-message {
         color: #ff6666;
         text-align: center;
         margin-bottom: 1rem;
+        padding: 10px;
+        background-color: rgba(255, 102, 102, 0.1);
+        border-radius: 6px;
     }
 
     .link-secondary {
         color: #bbbbbb;
         text-decoration: none;
+        transition: color 0.3s ease;
     }
 
     .link-secondary:hover {
@@ -151,7 +169,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
 
     .extra-links {
         text-align: center;
-        margin-top: 1rem;
+        margin-top: 1.5rem;
     }
 </style>
 
@@ -159,27 +177,28 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     <div class="login-container">
         <div class="login-title">Login</div>
 
-        <?php if (isset($message)): ?>
-            <div class="error-message"><?php echo $message; ?></div>
+        <?php if (!empty($message)): ?>
+            <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <form method="POST" action="login.php">
+        <form method="POST" action="login.php" autocomplete="off">
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input name="email" type="email" class="form-control" id="exampleInputEmail1" required>
+                <label for="email" class="form-label">Email address</label>
+                <input name="email" type="email" class="form-control" id="email" required 
+                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
             </div>
 
             <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input name="password" type="password" class="form-control" id="exampleInputPassword1" required>
+                <label for="password" class="form-label">Password</label>
+                <input name="password" type="password" class="form-control" id="password" required>
             </div>
 
             <div class="form-check mb-3">
-                <input type="checkbox" name="remember_me" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                <input type="checkbox" name="remember_me" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
 
-            <button type="submit" name="submit" class="btn-outline-light">Login</button>
+            <button type="submit" name="submit" class="btn-login">Login</button>
 
             <div class="extra-links">
                 <small>Don't have an account? <a href="register.php" class="link-secondary">Register</a></small>

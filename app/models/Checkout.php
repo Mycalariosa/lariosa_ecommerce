@@ -1,8 +1,8 @@
 <?php
 
-namespace Aries\MiniFrameworkStore\Models;
+namespace App\Models;
 
-use Aries\MiniFrameworkStore\Includes\Database;
+use App\Includes\Database;
 use Carbon\Carbon;
 
 class Checkout extends Database

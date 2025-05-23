@@ -1,9 +1,12 @@
-<?php include 'helpers/functions.php'; ?>
+<?php
+session_start();
+include 'helpers/functions.php';
+?>
 <?php template('header.php'); ?>
 <?php
 
-use Aries\MiniFrameworkStore\Models\User;
-use Aries\MiniFrameworkStore\Models\Checkout;
+use App\Models\User;
+use App\Models\Checkout;
 
 if(!isset($_SESSION['user'])) {
     header('Location: login.php');
@@ -52,10 +55,35 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
         <div class="col-md-4">
             <h1>My Account</h1>
             <p>Welcome, <?php echo $_SESSION['user']['name']; ?></p>
-            <a href="logout.php" class="btn btn-danger">Logout</a>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+            
+            <!-- Profile Picture Section -->
+            <div class="profile-picture-section mt-4">
+                <div class="profile-picture-display mb-3">
+                    <?php
+                    $profilePic = $_SESSION['user']['profile_picture'] ?? 'assets/images/default-profile.png';
+                    ?>
+                    <img src="<?php echo $profilePic; ?>" alt="Profile Picture" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                <form action="upload-profile.php" method="POST" enctype="multipart/form-data" class="mb-3">
+                    <div class="mb-2">
+                        <label for="profile_picture" class="form-label">Upload Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                </form>
+            </div>
         </div>
         <div class="col-md-8 bg-white p-5">
-            <h2>Edit Account Details</h2>
+            <h2>Account Detail</h2>
             <form action="my-account.php" method="POST">
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
@@ -77,7 +105,7 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
                     <label for="birthdate" class="form-label">Birthdate</label>
                     <input type="date" class="form-control" id="birthdate" name="birthdate" value="<?php echo $_SESSION['user']['birthdate'] ?? ''; ?>">
                 </div>
-                <button type="submit" class="btn btn-primary" name="submit">Save Changes</button>
+                <button type="submit" class="btn btn-primary" name="submit">Edit</button>
             </form>
         </div>
     </div>

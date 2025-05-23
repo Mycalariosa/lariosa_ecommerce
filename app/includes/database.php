@@ -1,6 +1,6 @@
 <?php
 
-namespace Aries\MiniFrameworkStore\Includes;
+namespace App\Includes;
 
 use PDO;
 use PDOException;

@@ -1,7 +1,7 @@
 <?php
 require 'vendor/autoload.php';
 
-use Aries\MiniFrameworkStore\Models\Category;
+use App\Models\Category;
 
 $categories = new Category();
 

@@ -1,9 +1,19 @@
-<?php include 'helpers/functions.php'; ?>
-<?php template('header.php'); ?>
-<?php
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-use Aries\MiniFrameworkStore\Models\Category;
-use Aries\MiniFrameworkStore\Models\Product;
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
+    exit();
+}
+
+include 'helpers/functions.php'; 
+
+use App\Models\Category;
+use App\Models\Product;
 use Carbon\Carbon;
 
 $categories = new Category();
@@ -35,9 +45,28 @@ if (isset($_POST['submit'])) {
 
     $message = "Product added successfully!";
 }
+
+template('header.php');
 ?>
 
 <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f7f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        padding-top: 80px; /* Add padding for fixed header */
+    }
+
+    .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
     .form-container {
         background-color: #fff;
         padding: 1.5rem;
@@ -46,6 +75,8 @@ if (isset($_POST['submit'])) {
         margin-top: 1rem;
         max-width: 500px;
         margin: 1rem auto;
+        position: relative;
+        z-index: 1;
     }
 
     .form-title {
@@ -98,6 +129,28 @@ if (isset($_POST['submit'])) {
     .access-denied p {
         color: #666;
         margin-bottom: 20px;
+    }
+
+    /* Ensure dropdown stays above other content */
+    .user-dropdown {
+        position: relative;
+        z-index: 1002;
+    }
+
+    .user-dropdown-content {
+        position: absolute;
+        z-index: 1002;
+    }
+
+    /* Ensure form elements don't overlap dropdown */
+    .form-floating {
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-group {
+        position: relative;
+        z-index: 1;
     }
 </style>
 

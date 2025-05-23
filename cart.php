@@ -15,10 +15,58 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
 ?>
 
 <style>
-    .cart-container {
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f7f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        padding-top: 80px; /* Add padding for fixed header */
+    }
+
+    .container {
+        padding: 20px;
         max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cart-container {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Ensure dropdown stays above other content */
+    .user-dropdown {
+        position: relative;
+        z-index: 1002;
+    }
+
+    .user-dropdown-content {
+        position: absolute;
+        z-index: 1002;
+    }
+
+    /* Ensure cart elements don't overlap dropdown */
+    .cart-table {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cart-header {
+        position: relative;
+        z-index: 1;
+    }
+
+    .empty-cart {
+        position: relative;
+        z-index: 1;
     }
 
     .cart-header {

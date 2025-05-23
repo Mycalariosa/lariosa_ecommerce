@@ -1,8 +1,8 @@
 <?php
 
-namespace Aries\MiniFrameworkStore\Models;
+namespace App\Models;
 
-use Aries\MiniFrameworkStore\Includes\Database;
+use App\Includes\Database;
 
 
 class User extends Database {
@@ -21,7 +21,14 @@ class User extends Database {
         $stmt->execute([
             'email' => $data['email'],
         ]);
-        return $stmt->fetch(\PDO::FETCH_ASSOC);
+        $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        // If user exists and password matches
+        if ($user && password_verify($data['password'], $user['password'])) {
+            return $user;
+        }
+        
+        return false;
     }
     // Save or clear the remember me token for a user
 public function saveRememberToken($userId, $token) {
@@ -62,17 +69,26 @@ public function getUserByRememberToken($token) {
     }
 
     public function update($data) {
-        $sql = "UPDATE users SET name = :name, email = :email, address = :address, phone = :phone, birthdate = :birthdate, role = :role WHERE id = :id";
+        // Build the SQL query dynamically based on provided fields
+        $fields = [];
+        $params = ['id' => $data['id']];
+        
+        $allowedFields = ['name', 'email', 'address', 'phone', 'birthdate', 'profile_picture'];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $fields[] = "$field = :$field";
+                $params[$field] = $data[$field];
+            }
+        }
+        
+        if (empty($fields)) {
+            return false; // No fields to update
+        }
+        
+        $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = :id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            'id' => $data['id'],
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'address' => $data['address'],
-            'phone' => $data['phone'],
-            'birthdate' => $data['birthdate'],
-            'role' => $data['role'] ?? self::ROLE_CUSTOMER
-        ]);
+        return $stmt->execute($params);
     }
 
     public function delete($id) {
@@ -103,5 +119,12 @@ public function getUserByRememberToken($token) {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['role' => self::ROLE_CUSTOMER]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function find($id) {
+        $sql = "SELECT * FROM users WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }
