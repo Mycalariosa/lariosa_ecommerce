@@ -1,6 +1,6 @@
 {
     "name": "aries/mini-framework-store",
-    "description": "A simple online store based from mini-framework",
+    "description": "A simple online store based on a mini-framework",
     "license": "MIT",
     "autoload": {
         "psr-4": {
@@ -15,5 +15,10 @@
     ],
     "require": {
         "nesbot/carbon": "^3.9"
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "composer dump-autoload"
+        ]
     }
 }

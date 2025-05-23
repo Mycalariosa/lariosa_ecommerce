@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include 'helpers/functions.php'; 
 require_once 'helpers/role_helper.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Require admin access
 requireAdmin();
@@ -14,8 +15,12 @@ use App\Models\Category;
 use App\Models\Product;
 use Carbon\Carbon;
 
+// Ensure $db is initialized
+global $db;
+
 $categories = new Category();
-$product = new Product();
+// Instantiate the Product class with the $db connection
+$product = new Product($db);
 
 if (isset($_POST['submit'])) {
     $name = $_POST['name'];

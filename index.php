@@ -9,8 +9,11 @@ include 'helpers/functions.php';
 use App\Models\Product;
 use App\Models\Category;
 
-$products = new Product();
-$categories = new Category();
+// Ensure $db is initialized
+global $db;
+
+$products = new Product($db); // Pass $db to the Product model
+$categories = new Category($db); // Pass $db to the Category model
 $amountLocale = 'en_PH';
 $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
 
@@ -201,24 +204,27 @@ template('header.php');
     }
 
     .card .btn-group {
+        display: flex;
+        justify-content: space-between;
         margin-top: auto;
     }
 
     .btn-primary, .btn-success {
         border: none;
-        padding: 8px 14px;
+        padding: 10px 16px; /* Adjusted padding for better alignment */
         border-radius: 6px;
         font-weight: 500;
         cursor: pointer;
         font-size: 14px;
         transition: background-color 0.3s ease, color 0.3s ease;
-        margin-right: 8px;
     }
 
     .btn-primary {
         background-color: #000;
         color: #fff;
         border: 1px solid #444;
+        flex: 1; /* Ensure buttons take equal space */
+        margin-right: 8px; /* Add spacing between buttons */
     }
 
     .btn-primary:hover {
@@ -228,6 +234,8 @@ template('header.php');
     .btn-success {
         background-color: #b08e6b;
         color: #fff;
+        border: 1px solid #a07a50;
+        flex: 1; /* Ensure buttons take equal space */
     }
 
     .btn-success:hover {
@@ -270,12 +278,15 @@ template('header.php');
                             <h5 class="card-title"><?php echo htmlspecialchars($product['name']) ?></h5>
                             <h6 class="card-subtitle"><?php echo $pesoFormatter->formatCurrency($product['price'], 'PHP') ?></h6>
                             <p class="card-text"><?php echo htmlspecialchars($product['description']) ?></p>
-                            <a href="product.php?id=<?php echo $product['id'] ?>" class="btn btn-primary">View Product</a>
-                            <?php if(isset($_SESSION['user'])): ?>
-                                <a href="#" class="btn btn-success add-to-cart" data-productid="<?php echo $product['id'] ?>" data-quantity="1">Add to Cart</a>
-                            <?php else: ?>
-                                <a href="login.php" class="btn btn-success">Login to Add to Cart</a>
-                            <?php endif; ?>
+                            <div class="btn-group">
+                                <!-- Ensure the product ID is passed correctly -->
+                                <a href="product.php?id=<?php echo $product['id']; ?>" class="btn btn-primary">View Product</a>
+                                <?php if(isset($_SESSION['user'])): ?>
+                                    <a href="#" class="btn btn-success add-to-cart" data-productid="<?php echo $product['id'] ?>">Add to Cart</a>
+                                <?php else: ?>
+                                    <a href="login.php" class="btn btn-success">Login to Add to Cart</a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -283,5 +294,43 @@ template('header.php');
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default link behavior
+
+                const productId = this.dataset.productid;
+                const quantity = 1; // Default quantity is 1 for index.php
+
+                // Perform an AJAX request to add the product to the cart
+                fetch('add_to_cart.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `product_id=${encodeURIComponent(productId)}&quantity=${encodeURIComponent(quantity)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to the cart page after successful addition
+                        window.location.href = 'cart.php';
+                    } else {
+                        console.error('Error:', data.error);
+                        alert(data.error || 'Failed to add product to cart. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+    });
+</script>
 
 <?php template('footer.php'); ?>

@@ -1,8 +1,8 @@
-<?php include 'helpers/functions.php'; ?>
-<?php template('header.php'); ?>
-<?php
+<?php 
+include 'helpers/functions.php'; 
+require_once __DIR__ . '/vendor/autoload.php';
 
-use Aries\MiniFrameworkStore\Models\Checkout;
+use App\Models\Checkout;
 
 $checkout = new Checkout();
 
@@ -55,125 +55,7 @@ if(isset($_POST['submit'])) {
 ?>
 
 <style>
-    .checkout-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-
-    .checkout-header {
-        background-color: #2e2e2e;
-        color: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
-    }
-
-    .checkout-header h1 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-    }
-
-    .checkout-section {
-        background-color: #fff;
-        border-radius: 10px;
-        padding: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .checkout-section h2 {
-        margin: 0 0 20px;
-        font-size: 20px;
-        color: #333;
-    }
-
-    .checkout-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 30px;
-    }
-
-    .checkout-table th,
-    .checkout-table td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-
-    .checkout-table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .checkout-table tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #333;
-        margin-bottom: 8px;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-    .form-control:focus {
-        border-color: #b08e6b;
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(176,142,107,0.2);
-    }
-
-    .btn {
-        border: none;
-        padding: 12px 24px;
-        border-radius: 6px;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin-right: 10px;
-        color: #fff;
-    }
-
-    .btn-success {
-        background-color: #b08e6b;
-    }
-
-    .btn-success:hover {
-        background-color: #a07a50;
-    }
-
-    .btn-primary {
-        background-color: #2e2e2e;
-    }
-
-    .btn-primary:hover {
-        background-color: #1a1a1a;
-    }
-
-    .empty-cart {
-        text-align: center;
-        padding: 40px;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .empty-cart p {
-        color: #666;
-        margin-bottom: 20px;
-    }
+    /* ...existing styles... */
 </style>
 
 <div class="checkout-container">

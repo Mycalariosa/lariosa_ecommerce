@@ -1,18 +1,23 @@
-<?php include 'helpers/functions.php'; ?>
-<?php template('header.php'); ?>
-<?php
+<?php 
+include 'helpers/functions.php'; 
+require_once __DIR__ . '/vendor/autoload.php';
 
-if(isset($_GET['remove'])) {
-    $productId = $_GET['remove'];
-    if(isset($_SESSION['cart'][$productId])) {
-        unset($_SESSION['cart'][$productId]);
+session_start(); // Ensure session is started
+
+if (isset($_GET['remove'])) {
+    $productId = filter_input(INPUT_GET, 'remove', FILTER_SANITIZE_NUMBER_INT);
+    if ($productId && isset($_SESSION['cart'][$productId])) {
+        unset($_SESSION['cart'][$productId]); // Remove the specific product from the cart
     }
+    header('Location: cart.php'); // Redirect to refresh the cart page
+    exit;
 }
 
-$amounLocale = 'en_PH';
-$pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
+$amountLocale = 'en_PH';
+$pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
 
 ?>
+<?php template('header.php'); ?>
 
 <style>
     body {
@@ -38,33 +43,6 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
         border-radius: 12px;
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
         margin-top: 1rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Ensure dropdown stays above other content */
-    .user-dropdown {
-        position: relative;
-        z-index: 1002;
-    }
-
-    .user-dropdown-content {
-        position: absolute;
-        z-index: 1002;
-    }
-
-    /* Ensure cart elements don't overlap dropdown */
-    .cart-table {
-        position: relative;
-        z-index: 1;
-    }
-
-    .cart-header {
-        position: relative;
-        z-index: 1;
-    }
-
-    .empty-cart {
         position: relative;
         z-index: 1;
     }
@@ -161,9 +139,9 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
         <h1>Shopping Cart</h1>
     </div>
 
-    <?php if(countCart() == 0): ?>
+    <?php if (empty($_SESSION['cart'])): ?>
         <div class="empty-cart">
-            <p>Your cart is empty.</p>
+            <p>No items in your cart.</p>
             <a href="index.php" class="btn btn-primary">Continue Shopping</a>
         </div>
     <?php else: ?>
@@ -179,19 +157,22 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($_SESSION['cart'] as $item): ?>
+                    <?php $superTotal = 0; ?>
+                    <?php foreach ($_SESSION['cart'] as $productId => $item): ?>
                         <tr>
-                            <td><?php echo $item['name'] ?></td>
-                            <td><?php echo $item['quantity'] ?></td>
-                            <td><?php echo $pesoFormatter->formatCurrency($item['price'], 'PHP') ?></td>
-                            <td><?php echo $pesoFormatter->formatCurrency($item['total'], 'PHP') ?></td>
-                            <td><a href="cart.php?remove=<?php echo $item['product_id'] ?>" class="btn btn-primary">Remove</a></td>
-                            <?php $superTotal = isset($superTotal) ? $superTotal + $item['total'] : $item['total']; ?>
+                            <td><?php echo htmlspecialchars($item['name']); ?></td>
+                            <td><?php echo $item['quantity']; ?></td>
+                            <td><?php echo $pesoFormatter->formatCurrency($item['price'], 'PHP'); ?></td>
+                            <td><?php echo $pesoFormatter->formatCurrency($item['total'], 'PHP'); ?></td>
+                            <td>
+                                <a href="cart.php?remove=<?php echo $productId; ?>" class="btn btn-primary">Remove</a>
+                            </td>
+                            <?php $superTotal += $item['total']; ?>
                         </tr>
                     <?php endforeach; ?>
                     <tr>
                         <td colspan="3" class="text-end"><strong>Total</strong></td>
-                        <td colspan="2"><strong><?php echo $pesoFormatter->formatCurrency($superTotal, 'PHP') ?></strong></td>
+                        <td colspan="2"><strong><?php echo $pesoFormatter->formatCurrency($superTotal, 'PHP'); ?></strong></td>
                     </tr>
                 </tbody>
             </table>

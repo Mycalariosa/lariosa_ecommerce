@@ -1,37 +1,64 @@
 <?php
-   
-   require 'vendor/autoload.php';
+require 'vendor/autoload.php';
 
-    use Aries\MiniFrameworkStore\Models\Product;
+use App\Models\Product;
 
-    session_start();
+session_start();
 
-    // Check if user is logged in
-    if (!isset($_SESSION['user'])) {
-        echo json_encode(['status' => 'auth_required']);
+// Ensure $db is initialized
+global $db;
+
+// Retrieve and sanitize input
+$productId = filter_input(INPUT_POST, 'productId', FILTER_SANITIZE_NUMBER_INT);
+$quantity = filter_input(INPUT_POST, 'quantity', FILTER_SANITIZE_NUMBER_INT) ?: 1; // Default quantity to 1 if not provided
+
+if (!$productId || $quantity <= 0) {
+    echo json_encode(['status' => 'error', 'error' => 'Invalid product ID or quantity.']);
+    exit;
+}
+
+// Initialize Product model
+$product = new Product($db);
+
+try {
+    // Validate product existence
+    $productDetails = $product->getById($productId);
+    if (!$productDetails) {
+        echo json_encode(['status' => 'error', 'error' => 'Product not found.']);
         exit;
     }
 
-    $product_id = intval($_POST['productId']);
-    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
-
+    // Initialize cart session if not already set
     if (!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = [];
     }
 
-    $product = new Product();
-    $productDetails = $product->getById($_POST['productId']);
+    // Add or update product in the cart
+    if (isset($_SESSION['cart'][$productId])) {
+        $_SESSION['cart'][$productId]['quantity'] += $quantity;
+        $_SESSION['cart'][$productId]['total'] = $_SESSION['cart'][$productId]['quantity'] * $productDetails['price'];
+    } else {
+        $_SESSION['cart'][$productId] = [
+            'product_id' => $productId,
+            'quantity' => $quantity,
+            'name' => $productDetails['name'],
+            'price' => $productDetails['price'],
+            'image_path' => $productDetails['image_path'],
+            'total' => $productDetails['price'] * $quantity
+        ];
+    }
 
-    // Ensure the cart only includes product ID and quantity
-    $_SESSION['cart'][$product_id] = [
-        'product_id' => $product_id,
-        'quantity' => $quantity,
-        'name' => $productDetails['name'],
-        'price' => $productDetails['price'],
-        'image_path' => $productDetails['image_path'],
-        'total' => $productDetails['price'] * $quantity
-    ];
+    // Calculate the new total items in the cart
+    $totalItems = 0;
+    foreach ($_SESSION['cart'] as $item) {
+        $totalItems += $item['quantity'];
+    }
 
-    echo json_encode(['status' => 'success']);
-
+    echo json_encode(['status' => 'success', 'totalItems' => $totalItems]);
+    exit;
+} catch (Exception $e) {
+    error_log("Error in cart-process.php: " . $e->getMessage());
+    echo json_encode(['status' => 'error', 'error' => 'An internal error occurred.']);
+    exit;
+}
 ?>

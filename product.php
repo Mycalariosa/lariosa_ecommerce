@@ -1,20 +1,35 @@
-<?php include 'helpers/functions.php'; ?>
-<?php
+<?php 
+include 'helpers/functions.php'; 
 
-if(!isset($_GET['id'])) {
+// Include Composer's autoloader
+require_once __DIR__ . '/vendor/autoload.php';
+
+if (!isset($_GET['id'])) {
     header('Location: index.php');
     exit();
 }
+
+// Correct namespace for the Product class
+use App\Models\Product;
 
 ?>
 <?php template('header.php'); ?>
 <?php
 
-use Aries\MiniFrameworkStore\Models\Product;
-
 $productId = $_GET['id'];
-$products = new Product();
+
+// Ensure $db is initialized
+global $db;
+
+// Pass $db to the Product class
+$products = new Product($db);
 $product = $products->getById($productId);
+
+if (!$product) {
+    // Redirect to index if the product is not found
+    header('Location: index.php');
+    exit();
+}
 
 $amounLocale = 'en_PH';
 $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
@@ -79,12 +94,6 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
         padding: 12px 24px;
         border-radius: 6px;
         font-weight: 500;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        margin-right: 10px;
-        color: #fff;
     }
 
     .btn-success {
@@ -139,5 +148,41 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addToCartButton = document.querySelector('.add-to-cart');
+
+        if (addToCartButton) {
+            addToCartButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default link behavior
+
+                const productId = this.dataset.productid;
+                const quantity = this.dataset.quantity;
+
+                // Perform an AJAX request to add the product to the cart
+                fetch('add_to_cart.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `product_id=${encodeURIComponent(productId)}&quantity=${encodeURIComponent(quantity)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to the cart page
+                        window.location.href = 'cart.php';
+                    } else {
+                        console.error('Error:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    });
+</script>
 
 <?php template('footer.php'); ?>

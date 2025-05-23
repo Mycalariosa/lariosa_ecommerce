@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use App\Includes\Database;
 use PDO;
+use PDOException;
 
-class Product extends Database
+class Product
 {
     private $db;
 
-    public function __construct()
+    public function __construct(PDO $db)
     {
-        parent::__construct(); // connect to DB
-        $this->db = $this->getConnection();
+        $this->db = $db;
     }
 
     public function insert($data)
@@ -46,7 +45,7 @@ class Product extends Database
             ':price' => $data['price'],
             ':image_path' => $data['image_path']
         ]);
-        return "Record UPDATED successfully";
+        return $stmt->rowCount();
     }
 
     public function delete($id)
@@ -54,14 +53,13 @@ class Product extends Database
         $sql = "DELETE FROM products WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
-        return "Record DELETED successfully";
+        return $stmt->rowCount();
     }
 
     public function getAll()
     {
         $sql = "SELECT * FROM products";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
+        $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -70,22 +68,6 @@ class Product extends Database
         $sql = "SELECT * FROM products WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function getByName($name)
-    {
-        $sql = "SELECT * FROM products WHERE name = :name";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':name' => $name]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function getByPrice($price)
-    {
-        $sql = "SELECT * FROM products WHERE price = :price";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':price' => $price]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
