@@ -29,7 +29,7 @@ $pesoFormatter = new NumberFormatter($amounLocale, NumberFormatter::CURRENCY);
         max-width: 1200px;
         margin: 0 auto;
         position: relative;
-        z-index: 1;
+        z-index: 1; /* Ensure content is beneath the fixed header (z-index: 1000) */
     }
 
     .cart-container {

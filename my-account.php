@@ -8,12 +8,12 @@ include 'helpers/functions.php';
 use App\Models\User;
 use App\Models\Checkout;
 
-if(!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit();
 }
 
-if(isset($_POST['submit'])) {
+if (isset($_POST['submit'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $address = $_POST['address'] ?? null;
@@ -55,16 +55,16 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
         <div class="col-md-4">
             <h1>My Account</h1>
             <p>Welcome, <?php echo $_SESSION['user']['name']; ?></p>
-            
+
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert alert-danger">
-                    <?php 
+                    <?php
                     echo $_SESSION['error'];
                     unset($_SESSION['error']);
                     ?>
                 </div>
             <?php endif; ?>
-            
+
             <!-- Profile Picture Section -->
             <div class="profile-picture-section mt-4">
                 <div class="profile-picture-display mb-3">
@@ -74,11 +74,10 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
                     <img src="<?php echo $profilePic; ?>" alt="Profile Picture" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                 </div>
                 <form action="upload-profile.php" method="POST" enctype="multipart/form-data" class="mb-3">
-                    <div class="mb-2">
-                        <label for="profile_picture" class="form-label">Upload Profile Picture</label>
-                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                    <label class="btn btn-dark btn-sm">
+                        Upload Profile Picture
+                        <input type="file" name="profile_picture" accept="image/*" hidden onchange="this.form.submit()">
+                    </label>
                 </form>
             </div>
         </div>
@@ -105,7 +104,7 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
                     <label for="birthdate" class="form-label">Birthdate</label>
                     <input type="date" class="form-control" id="birthdate" name="birthdate" value="<?php echo $_SESSION['user']['birthdate'] ?? ''; ?>">
                 </div>
-                <button type="submit" class="btn btn-primary" name="submit">Edit</button>
+                <button type="submit" class="btn btn-dark" name="submit">Edit</button>
             </form>
         </div>
     </div>
@@ -141,7 +140,7 @@ $pesoFormatter = new NumberFormatter($amountLocale, NumberFormatter::CURRENCY);
                 <?php else: ?>
                     <div class="text-center py-4">
                         <p>You haven't placed any orders yet.</p>
-                        <a href="index.php" class="btn btn-primary">Start Shopping</a>
+                        <a href="index.php" class="btn btn-dark">Start Shopping</a>
                     </div>
                 <?php endif; ?>
             </div>

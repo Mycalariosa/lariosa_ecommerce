@@ -30,16 +30,6 @@ template('header.php');
         padding-top: 80px; /* Add padding for fixed header */
     }
 
-    /* Header */
-    .header-bar {
-        background-color: #2e2e2e;
-        color: #fff;
-        padding: 20px 40px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .store-logo {
         display: flex;
         align-items: center;

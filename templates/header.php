@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require 'vendor/autoload.php';
+require_once 'helpers/role_helper.php';
 
 use App\Models\Category;
 
@@ -103,6 +104,15 @@ $categories = new Category();
             z-index: 1002;
             border-radius: 6px;
             margin-top: 5px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .user-dropdown-content.show {
+            display: block;
+            opacity: 1;
+            visibility: visible;
         }
         
         .user-dropdown-content a {
@@ -120,14 +130,6 @@ $categories = new Category();
             color: #fff;
         }
         
-        .user-dropdown:hover .user-dropdown-content {
-            display: block;
-        }
-        
-        .user-dropdown:hover .user-name {
-            background-color: #3e3e3e;
-        }
-        
         .user-name {
             padding: 8px 16px;
             border-radius: 6px;
@@ -137,6 +139,10 @@ $categories = new Category();
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .user-name.active {
+            background-color: #3e3e3e;
         }
 
         .user-name i {
@@ -207,7 +213,9 @@ $categories = new Category();
         <div class="header-links">
             <a href="index.php">Home</a>
             <?php if(isset($_SESSION['user'])): ?>
-                <a href="add-product.php">Add Product</a>
+                <?php if(isAdmin()): ?>
+                    <a href="add-product.php">Add Product</a>
+                <?php endif; ?>
                 <a href="cart.php" class="cart-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff" version="1.1" id="Capa_1" width="20px" height="20px" viewBox="0 0 902.86 902.86" xml:space="preserve">
                         <g>
@@ -246,5 +254,32 @@ $categories = new Category();
     </div>
 
     <script src="assets/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userDropdownContent = document.querySelector('.user-dropdown-content');
+            const userName = document.querySelector('.user-name');
+
+            // Toggle dropdown on click
+            userName.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdownContent.classList.toggle('show');
+                userName.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userDropdown.contains(e.target)) {
+                    userDropdownContent.classList.remove('show');
+                    userName.classList.remove('active');
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            userDropdownContent.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
 </body>
 </html>

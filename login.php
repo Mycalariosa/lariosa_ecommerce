@@ -1,6 +1,7 @@
 <?php
 session_start(); // Always start the session before any output
 include 'helpers/functions.php';
+require_once 'helpers/role_helper.php';
 
 use App\Models\User;
 
@@ -12,7 +13,12 @@ if (!isset($_SESSION['user']) && isset($_COOKIE['rememberme'])) {
     $token = $_COOKIE['rememberme'];
     $user_info = $user->getUserByRememberToken($token);
     if ($user_info) {
-        $_SESSION['user'] = $user_info;
+        $_SESSION['user'] = [
+            'id' => $user_info['id'],
+            'name' => $user_info['name'],
+            'email' => $user_info['email'],
+            'role' => $user_info['role']
+        ];
         setcookie('rememberme', $token, time() + (86400 * 30), "/", "", false, true);
         header('Location: dashboard.php');
         exit;
@@ -39,7 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         ]);
 
         if ($user_info) {
-            $_SESSION['user'] = $user_info;
+            $_SESSION['user'] = [
+                'id' => $user_info['id'],
+                'name' => $user_info['name'],
+                'email' => $user_info['email'],
+                'role' => $user_info['role']
+            ];
 
             if (isset($_POST['remember_me'])) {
                 $token = bin2hex(random_bytes(16));
@@ -59,6 +70,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         }
     }
 }
+
+// Check if user is admin
+if (isAdmin()) {
+    // Show admin features
+}
+
+// Require admin access
+requireAdmin();
+
+// Check if user is customer
+if (isCustomer()) {
+    // Show customer features
+}
+
+// Get user role
+$role = getUserRole();
 
 template('header.php');
 ?>

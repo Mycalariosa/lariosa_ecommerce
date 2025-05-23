@@ -4,13 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['user'])) {
-    header('Location: login.php');
-    exit();
-}
-
 include 'helpers/functions.php'; 
+require_once 'helpers/role_helper.php';
+
+// Require admin access
+requireAdmin();
 
 use App\Models\Category;
 use App\Models\Product;
@@ -64,7 +62,7 @@ template('header.php');
         max-width: 1200px;
         margin: 0 auto;
         position: relative;
-        z-index: 1;
+        z-index: 1; /* Ensure content is beneath the fixed header (z-index: 1000) */
     }
 
     .form-container {
